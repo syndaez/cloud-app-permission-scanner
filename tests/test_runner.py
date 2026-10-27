@@ -66,7 +66,7 @@ def test_end_to_end_policy(compiled_app: Path, tmp_path: Path) -> None:
 def test_package_filter_limits_scan(compiled_app: Path, tmp_path: Path) -> None:
     out = tmp_path / "policy.json"
     config = ScanConfig(
-        root=compiled_app, output=out, package_substr="com/example/logging"
+        root=compiled_app, output=out, include_re=r".*com/example/logging.*"
     )
     assert run(config) == 0
     sids = [s["Sid"] for s in json.loads(out.read_text())["Statement"]]

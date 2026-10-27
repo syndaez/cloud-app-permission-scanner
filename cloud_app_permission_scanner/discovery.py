@@ -15,11 +15,31 @@ class ClassFileFinder:
 
     def __init__(self, config: ScanConfig) -> None:
         self._root = config.root
-        self._include_substr = config.include_path_substr
-        self._package_substr = config.package_substr
-        self._exclude_re = (
-            re.compile(config.exclude_regex) if config.exclude_regex else None
-        )
+        self._include_re = re.compile(config.include_re) if config.include_re else None
+        self._exclude_re = re.compile(config.exclude_re) if config.exclude_re else None
+
+    def matches_include(self, path: str | Path) -> bool:
+        """Return whether the path matches the include regex, if configured."""
+        if self._include_re is None:
+            return True
+        return bool(self._include_re.search(Path(path).as_posix()))
+
+    def matches_exclude(self, path: str | Path) -> bool:
+        """Return whether the path matches the exclude regex."""
+        if self._exclude_re is None:
+            return False
+        return bool(self._exclude_re.search(Path(path).as_posix()))
+
+    # Backward-compatibility aliases
+    include_re = matches_include
+    exclude_re = matches_exclude
+
+    def is_eligible(self, path: str | Path) -> bool:
+        """Return whether the path should be processed."""
+        return self.matches_include(path) and not self.matches_exclude(path)
+
+    # Convenience alias
+    isEligible = is_eligible
 
     def find(self) -> list[Path]:
         """Return all ``.class`` files matching the configured filters."""
@@ -29,14 +49,10 @@ class ClassFileFinder:
                 if not fn.endswith(".class"):
                     continue
                 full = os.path.join(dirpath, fn)
-                if self._exclude_re and self._exclude_re.search(full):
-                    continue
-                if self._include_substr and self._include_substr not in full:
-                    continue
-                if self._package_substr and self._package_substr not in full:
+                if not self.is_eligible(full):
                     continue
                 results.append(Path(full))
-        return results
+        return sorted(results, key=lambda path: str(path))
 
     @staticmethod
     def contains_sdk_reference(path: Path) -> bool:

@@ -48,6 +48,7 @@ include = ["cloud_app_permission_scanner*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+pythonpath = ["."]
 addopts = "-ra"
 
 [tool.ruff]

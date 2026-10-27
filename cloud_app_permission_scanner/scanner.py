@@ -30,7 +30,7 @@ class ClassScanner:
         if not candidates:
             logger.error(
                 "No .class files matched filters. "
-                "Adjust --root / --include-path-substr / --package-substr."
+                "Adjust --root / --include-re / --exclude-re."
             )
             return result
 

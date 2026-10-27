@@ -12,10 +12,16 @@ pip install .
 
 ### Development mode
 
-If you're making changes to the source code, install in editable mode so your changes take effect immediately without reinstalling:
+If you're making changes to the source code, install in editable mode with development dependencies:
 
 ```bash
-pip install -e .
+pip install -e ".[dev]"
+```
+
+Run tests with:
+
+```bash
+pytest
 ```
 
 ### From GitHub (directly)
@@ -28,6 +34,34 @@ pip install git+https://github.com/syndaez/cloud-app-permission-scanner.git
 
 ```bash
 cloud-app-permission-scanner --help
+```
+
+## Usage
+
+```bash
+cloud-app-permission-scanner \
+  --root /path/to/classes \
+  --include-re '.*com/example/.*' \
+  --exclude-re '.*generated.*' \
+  --out permissions-policy.json
+```
+
+Options:
+
+- `--include-re`: regex applied to each discovered class file path; only matching files are scanned.
+- `--exclude-re`: regex applied to each discovered class file path; matching files are skipped.
+
+Examples:
+
+```bash
+# include only package classes under com/example
+cloud-app-permission-scanner --root . --include-re '.*com/example/.*'
+
+# skip generated classes and test classes
+cloud-app-permission-scanner --root . --exclude-re '.*(generated|test).*'
+
+# combine both filters
+cloud-app-permission-scanner --root . --include-re '.*com/example/.*' --exclude-re '.*generated.*'
 ```
 
 ## Development
